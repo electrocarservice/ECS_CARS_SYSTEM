@@ -1,7 +1,6 @@
 // Конфигурация Gemini API
 const GEMINI_CONFIG = {
-    apiKey: 'AQ.Ab8RN6KuZzCFEnCqeU-h2xoXwFZA_c3qpLj1p74r8enqjRhS9A', // Вставьте ваш ключ от Google AI Studio
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.0-flash',
     systemInstruction: `Ты — встроенный ИИ-эксперт базы знаний EVBase по китайским электромобилям (Zeekr, Lixiang, BYD, Voyah, Avatr, Xiaomi и др.). 
 Твоя задача — давать четкие, технически грамотные ответы по:
 - Диагностике программных ошибок и сбоев (OTA, мастер-аккаунты, русификация, сим-карты).
@@ -9,6 +8,11 @@ const GEMINI_CONFIG = {
 - Особенностям зарядки (GB/T, адаптеры, фазы, мощности).
 Отвечай кратко, вежливо и по делу. Если не уверен в конкретном каталожном номере, честно предупреди об этом.`
 };
+
+// Функция получения ключа из памяти браузера
+function getApiKey() {
+    return localStorage.getItem('gemini_api_key');
+}
 
 // Элементы интерфейса чата
 const chatWindow = document.getElementById('chatWindow');
@@ -18,15 +22,53 @@ const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendMessageBtn = document.getElementById('sendMessageBtn');
 
-// Переключение видимости окна чата
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    // Добавляем кнопку настройки ключа в шапку чата
+    const chatHeader = document.querySelector('.chat-header');
+    if (chatHeader && !document.getElementById('setKeyBtn')) {
+        const keyBtn = document.createElement('button');
+        keyBtn.id = 'setKeyBtn';
+        keyBtn.textContent = '🔑 Ключ';
+        keyBtn.title = 'Настроить Gemini API Key';
+        keyBtn.style.cssText = 'background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: #fff; border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; cursor: pointer; margin-left: auto; margin-right: 8px;';
+        keyBtn.addEventListener('click', promptForApiKey);
+        chatHeader.insertBefore(keyBtn, closeChatBtn);
+    }
+});
+
+// Открытие / закрытие чата
 if (toggleChatBtn) {
-    toggleChatBtn.addEventListener('click', () => chatWindow.classList.toggle('hidden'));
+    toggleChatBtn.addEventListener('click', () => {
+        chatWindow.classList.toggle('hidden');
+        if (!chatWindow.classList.contains('hidden') && !getApiKey()) {
+            promptForApiKey();
+        }
+    });
 }
+
 if (closeChatBtn) {
     closeChatBtn.addEventListener('click', () => chatWindow.classList.add('hidden'));
 }
 
-// Отправка сообщения по кнопке или Enter
+// Запрос ключа у пользователя
+function promptForApiKey() {
+    const currentKey = getApiKey() || '';
+    const newKey = prompt('Введите ваш Gemini API Key (получить на aistudio.google.com):', currentKey);
+    
+    if (newKey !== null) {
+        const trimmedKey = newKey.trim();
+        if (trimmedKey) {
+            localStorage.setItem('gemini_api_key', trimmedKey);
+            appendMessage('✅ API-ключ сохранён в вашем браузере!', 'ai-message');
+        } else {
+            localStorage.removeItem('gemini_api_key');
+            appendMessage('⚠️ API-ключ был удалён.', 'ai-message');
+        }
+    }
+}
+
+// Отправка сообщений
 if (sendMessageBtn && chatInput) {
     sendMessageBtn.addEventListener('click', handleSendMessage);
     chatInput.addEventListener('keypress', (e) => {
@@ -34,49 +76,44 @@ if (sendMessageBtn && chatInput) {
     });
 }
 
-/**
- * Обработка отправки сообщения пользователем
- */
 async function handleSendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // 1. Отображаем сообщение пользователя в чате
+    const apiKey = getApiKey();
+    if (!apiKey) {
+        appendMessage('⚠️ Не задан API-ключ Gemini! Нажмите кнопку "🔑 Ключ" вверху чата.', 'ai-message');
+        promptForApiKey();
+        return;
+    }
+
     appendMessage(text, 'user-message');
     chatInput.value = '';
 
-    // 2. Показываем индикатор загрузки
     const loadingMessage = appendMessage('Ассистент думает...', 'ai-message loading');
 
-    // 3. Отправляем запрос к Gemini API
     try {
-        const responseText = await askGemini(text);
-        loadingMessage.remove(); // Удаляем индикатор загрузки
+        const responseText = await askGemini(text, apiKey);
+        loadingMessage.remove();
         appendMessage(responseText, 'ai-message');
     } catch (error) {
         console.error('Ошибка Gemini API:', error);
         loadingMessage.remove();
-        appendMessage('Извините, произошла ошибка при связи с ИИ. Проверьте API-ключ.', 'ai-message');
+        appendMessage(`❌ Ошибка: ${error.message}. Проверьте ваш API-ключ с помощью кнопки "🔑 Ключ".`, 'ai-message');
     }
 }
 
-/**
- * Добавление сообщения в блок чата
- */
 function appendMessage(text, className) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${className}`;
     msgDiv.textContent = text;
     chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Скролл вниз
+    chatMessages.scrollTop = chatMessages.scrollHeight;
     return msgDiv;
 }
 
-/**
- * Запрос к Gemini API с использованием REST API
- */
-async function askGemini(userPrompt) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CONFIG.model}:generateContent?key=${GEMINI_CONFIG.apiKey}`;
+async function askGemini(userPrompt, apiKey) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CONFIG.model}:generateContent?key=${apiKey}`;
 
     const requestBody = {
         contents: [
@@ -99,15 +136,16 @@ async function askGemini(userPrompt) {
     });
 
     if (!response.ok) {
-        throw new Error(`Ошибка API: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        const errMsg = errorData.error?.message || response.statusText;
+        throw new Error(`Код ${response.status} (${errMsg})`);
     }
 
     const data = await response.json();
     
-    // Извлекаем текст ответа от модели
     if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
         return data.candidates[0].content.parts[0].text;
     } else {
-        return 'Не удалось получить ответ от ассистента.';
+        return 'Не удалось получить текст ответа.';
     }
 }
