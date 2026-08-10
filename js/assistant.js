@@ -1,6 +1,6 @@
 // Конфигурация Gemini API
 const GEMINI_CONFIG = {
-    apiKey: 'AQ.Ab8RN6J-k9T25TENCiLQy0bn6tK0w7pMdUWFuFcrOUTlUA_Wnw', // Вставьте ваш ключ от Google AI Studio
+    apiKey: 'AQ.Ab8RN6KuZzCFEnCqeU-h2xoXwFZA_c3qpLj1p74r8enqjRhS9A', // Вставьте ваш ключ от Google AI Studio
     model: 'gemini-1.5-flash',
     systemInstruction: `Ты — встроенный ИИ-эксперт базы знаний EVBase по китайским электромобилям (Zeekr, Lixiang, BYD, Voyah, Avatr, Xiaomi и др.). 
 Твоя задача — давать четкие, технически грамотные ответы по:
