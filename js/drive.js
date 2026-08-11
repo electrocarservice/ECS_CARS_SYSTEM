@@ -1,59 +1,75 @@
-// Конфигурация Google Drive API
 const DRIVE_CONFIG = {
     apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs',
     files: {
-        cars: '1RsOlqDKLV5f9kBC-CHq_yQQXgmblwwQA', // ТОЛЬКО ЧИСТЫЙ ID
-        tasks: 'ИДЕНТИФИКАТОР_ФАЙЛА_TASKS_JSON'    // ТОЛЬКО ЧИСТЫЙ ID
+        cars: '1RsOlqDKLV5f9kBC-CHq_yQQXgmblwwQA',
+        tasks: 'ВАШ_ID_ФАЙЛА_TASKS' // Вставьте чистый ID файла tasks.json
     }
 };
 
 /**
- * Функция загрузки JSON-файла с Google Диска
- * @param {string} fileId - Уникальный идентификатор файла на Google Drive
+ * Извлекает чистый ID файла из строки или ссылки Google Drive
  */
-async function fetchJsonFromDrive(fileId) {
+function extractFileId(input) {
+    if (!input) return '';
+    // Если передана полная ссылка Google Drive, вырезаем ID с помощью регулярного выражения
+    const match = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : input.trim();
+}
+
+/**
+ * Загрузка JSON-файла с Google Drive
+ */
+async function fetchJsonFromDrive(fileInput) {
+    const fileId = extractFileId(fileInput);
+
+    if (!DRIVE_CONFIG.apiKey) {
+        console.error('⚠️ Ошибка: Не указан API-ключ в DRIVE_CONFIG.apiKey');
+        updateDriveStatus(false);
+        return null;
+    }
+
+    if (!fileId || fileId.includes('ВАШ_')) {
+        console.error('⚠️ Ошибка: Не указан корректный ID файла.');
+        updateDriveStatus(false);
+        return null;
+    }
+
+    // Чистый URL без вложенных ссылок
     const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${DRIVE_CONFIG.apiKey}`;
-    
+
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Ошибка загрузки Google Drive: ${response.statusText}`);
+            const errorJson = await response.json().catch(() => ({}));
+            console.error(`⚠️ Ошибка Google Drive API (${response.status}):`, errorJson);
+            updateDriveStatus(false);
+            return null;
         }
+
         const data = await response.json();
         updateDriveStatus(true);
         return data;
     } catch (error) {
-        console.error('Ошибка при получении данных с Google Drive:', error);
+        console.error('Ошибка при получении данных с Google Drive:', error.message);
         updateDriveStatus(false);
         return null;
     }
 }
 
 /**
- * Обновление визуального статуса подключения в шапке сайта
+ * Обновление индикатора статуса подключения в шапке
  */
 function updateDriveStatus(isConnected) {
-    const statusDot = document.querySelector('.status-dot');
     const statusText = document.querySelector('.status-text');
+    const statusDot = document.querySelector('.status-dot');
 
-    if (statusDot && statusText) {
+    if (statusText && statusDot) {
         if (isConnected) {
-            statusDot.classList.remove('disconnected');
-            statusDot.classList.add('connected');
             statusText.textContent = 'Drive: Подключен';
+            statusDot.style.background = '#10b981'; // Зеленый
         } else {
-            statusDot.classList.remove('connected');
-            statusDot.classList.add('disconnected');
             statusText.textContent = 'Drive: Ошибка';
+            statusDot.style.background = '#ef4444'; // Красный
         }
-    }
-}
-
-// Пример вызова загрузки автомобилей при старте
-async function loadCarsData() {
-    const carsData = await fetchJsonFromDrive(DRIVE_CONFIG.files.cars);
-    if (carsData) {
-        console.log('Данные автомобилей успешно загружены:', carsData);
-        // Здесь будет функция отрисовки карточек на странице
     }
 }
