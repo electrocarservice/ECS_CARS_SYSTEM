@@ -75,6 +75,98 @@ body.dark-theme {
 .status-dot.disconnected { background-color: #ef4444; }
 .status-dot.connected { background-color: #10b981; }
 
+/* Сетка задач */
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.task-card {
+    background: #1e222d;
+    border: 1px solid #2a2e3d;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Приоритеты задач */
+.task-card.priority-high { border-left: 4px solid #ef4444; }
+.task-card.priority-medium { border-left: 4px solid #f59e0b; }
+.task-card.priority-low { border-left: 4px solid #10b981; }
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.task-car {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #60a5fa;
+    text-transform: uppercase;
+}
+
+.task-status {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+}
+
+.status-in-progress { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+.status-pending { color: #9ca3af; }
+
+.task-title {
+    font-size: 1.1rem;
+    margin: 5px 0 15px 0;
+    color: #fff;
+}
+
+/* Чек-лист */
+.checklist-container h4 {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.checklist li {
+    margin-bottom: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #d1d5db;
+}
+
+.checkbox-label input[type="checkbox"] {
+    accent-color: #3b82f6;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    color: #6b7280;
+}
+
 /* Контент */
 .app-content {
     max-width: 1200px;
