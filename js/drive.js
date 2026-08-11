@@ -1,9 +1,9 @@
 // Конфигурация Google Drive API
 const DRIVE_CONFIG = {
-    apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs', // Вставьте ваш ключ из Google Cloud
+    apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs',
     files: {
-        cars: 'https://drive.google.com/file/d/1RsOlqDKLV5f9kBC-CHq_yQQXgmblwwQA/view?usp=sharing',   // Вставьте ID файла cars.json
-        tasks: 'https://drive.google.com/file/d/1kvjl-rp_cZcRfou4jYWcNwlWbhQCSGeS/view?usp=sharing'  // Вставьте ID файла tasks.json
+        cars: '1RsOlqDKLV5f9kBC-CHq_yQQXgmblwwQA', // ТОЛЬКО ЧИСТЫЙ ID
+        tasks: 'ИДЕНТИФИКАТОР_ФАЙЛА_TASKS_JSON'    // ТОЛЬКО ЧИСТЫЙ ID
     }
 };
 
