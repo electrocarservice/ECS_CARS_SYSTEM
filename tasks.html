@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVBase — Сервисные задачи и чек-листы</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <h1>⚡ EVBase</h1>
+            <span class="status-badge"><span class="status-dot"></span> <span class="status-text">Drive: Загрузка...</span></span>
+        </div>
+        <nav class="nav">
+            <a href="index.html">Каталог авто</a>
+            <a href="tasks.html" class="active">Задачи и ТО</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="section-title">
+            <h2>📋 Сервисный журнал задач</h2>
+            <p>Текущие процедуры ремонта, настройки и обслуживания</p>
+        </section>
+
+        <!-- Контейнер для списка задач -->
+        <div id="tasksContainer" class="tasks-grid">
+            <div class="loading-spinner">Загрузка задач с Google Drive...</div>
+        </div>
+    </main>
+
+    <!-- Виджет ИИ-Ассистента -->
+    <button id="toggleChatBtn" class="chat-toggle-btn">💬</button>
+    <div id="chatWindow" class="chat-window hidden">
+        <div class="chat-header">
+            <h3>ИИ-Ассистент EVBase</h3>
+            <button id="closeChat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Спросить ассистента...">
+            <button id="sendMessageBtn">➔</button>
+        </div>
+    </div>
+
+    <script src="js/drive.js"></script>
+    <script src="js/assistant.js"></script>
+    <script src="js/tasks.js"></script>
+</body>
+</html>
