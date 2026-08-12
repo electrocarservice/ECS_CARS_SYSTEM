@@ -42,7 +42,7 @@ async function initDrive() {
  */
 async function fetchJsonFromDrive() {
     try {
-        const response = await fetch('https://gist.githubusercontent.com/kozpavvichecs-master/3490cd2e1e556dbe9b0dbd461332c9cc/raw/cbdd272327553f4fd046ea09ca1500066b1b5c1d/cars.json');
+        const response = await fetch(https://gist.githubusercontent.com/kozpavvichecs-master/3490cd2e1e556dbe9b0dbd461332c9cc/raw/cbdd272327553f4fd046ea09ca1500066b1b5c1d/cars.json);
         return await response.json();
     } catch (e) {
         console.error(e);
