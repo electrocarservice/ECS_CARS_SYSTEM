@@ -3,116 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Base — База знаний по китайским электромобилям</title>
-    <!-- Google Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>EVBase — База знаний электромобилей</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dark-theme">
-
-    <!-- 1. ВЕРХНЯЯ НАВИГАЦИЯ (HEADER) -->
-    <header class="app-header">
+<body>
+    <header class="header">
         <div class="logo">
-            <span class="logo-icon">⚡</span>
-            <span class="logo-text">EV<span class="highlight">Base</span></span>
+            <h1>⚡ EVBase</h1>
+            <span class="status-badge">
+                <span class="status-dot"></span> 
+                <span class="status-text">Drive: Загрузка...</span>
+            </span>
         </div>
-
-        <nav class="main-nav">
-            <a href="index.html" class="nav-link active">Главная</a>
-            <a href="cars.html" class="nav-link">Автомобили</a>
-            <a href="tasks.html" class="nav-link">Задачи</a>
+        <nav class="nav">
+            <a href="index.html" class="active">Каталог авто</a>
+            <a href="tasks.html">Задачи и ТО</a>
             <a href="add.html">+ Добавить</a>
-            <a href="about.html" class="nav-link">О проекте</a>
         </nav>
-
-        <!-- Статус подключения к Google Drive -->
-        <div class="drive-status" id="driveStatus" title="Статус синхронизации с Google Drive">
-            <span class="status-dot disconnected"></span>
-            <span class="status-text">Drive: Оффлайн</span>
-        </div>
     </header>
 
-    <!-- 2. ОСНОВНОЙ КОНТЕНТ (MAIN) -->
-    <main class="app-content">
-        <!-- Hero-секция с глобальным поиском -->
-        <section class="hero-section">
-            <h1>База знаний по китайским EV</h1>
-            <p>Запчасти, софт, русификация и решение сервисных проблем</p>
-            
-            <div class="search-bar">
-                <input type="text" id="globalSearch" placeholder="Поиск (например: Zeekr 001 замена масла в редукторе)...">
-                <button type="button" class="btn-search">Найти</button>
-            </div>
-        </section>
-
-        <!-- Панель поиска -->
+    <main class="container">
+        <!-- Поиск по марке, модели, запчастям -->
         <section class="search-section">
-            <input type="text" id="searchInput" placeholder="Поиск по марке, модели, запчасти или артикулу..." />
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по марке, модели, запчасти или артикулу..." />
         </section>
 
-        <!-- Контейнер карточек автомобилей -->
-            <main id="carsContainer">
-        <!-- Сюда динамически загрузится содержимое из app.js -->
-            </main>
-        
-        <!-- Сетка с быстрым выбором брендов -->
-        <section class="quick-brands">
-            <h2>Популярные марки</h2>
-            <div class="brands-grid">
-                <a href="cars.html?brand=zeekr" class="brand-card">Zeekr</a>
-                <a href="cars.html?brand=lixiang" class="brand-card">Lixiang</a>
-                <a href="cars.html?brand=byd" class="brand-card">BYD</a>
-                <a href="cars.html?brand=voyah" class="brand-card">Voyah</a>
-                <a href="cars.html?brand=avatr" class="brand-card">Avatr</a>
-            </div>
-        </section>
-     
-        <!-- Контейнер для динамической загрузки данных из Drive/JSON -->
-        <section class="content-feed">
-            <h2>Свежие материалы и гайды</h2>
-            <div class="cards-grid" id="dataFeed">
-                <!-- Карточки будут подгружаться через JS -->
-                <div class="card skeleton">Загрузка данных...</div>
-            </div>
+        <!-- Контейнер для пошаговой навигации (Марки -> Модели -> Описание) -->
+        <section id="catalogContent">
+            <div class="loading-spinner">Загрузка данных с Google Drive...</div>
         </section>
     </main>
 
-    <!-- 3. ВИТРИНА ИИ-АССИСТЕНТА (CHAT WIDGET) -->
-    <div class="ai-widget-container" id="aiWidget">
-        <!-- Окно чата (скрыто по умолчанию) -->
-        <div class="chat-window hidden" id="chatWindow">
-            <div class="chat-header">
-                <div class="chat-title">
-                    <span class="ai-badge">AI</span>
-                    <span>EV-Ассистент</span>
-                </div>
-                <button class="btn-close" id="closeChat">&times;</button>
-            </div>
-            
-            <div class="chat-messages" id="chatMessages">
-                <div class="message ai-message">
-                    Привет! Я твой ассистент по китайским электромобилям. Чем помочь? Могу подсказать по ошибкам, запчастям или прошивкам.
-                </div>
-            </div>
-
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Задай вопрос по авто...">
-                <button id="sendMessageBtn" class="btn-send">➤</button>
-            </div>
+    <!-- ИИ-Ассистент -->
+    <button id="toggleChatBtn" class="chat-toggle-btn">💬</button>
+    <div id="chatWindow" class="chat-window hidden">
+        <div class="chat-header">
+            <h3>ИИ-Ассистент EVBase</h3>
+            <button id="closeChat" style="background:none; border:none; color:#fff; cursor:pointer; font-size:1.2rem; margin-left:auto;">&times;</button>
         </div>
-
-        <!-- Плавающая кнопка вызова -->
-        <button class="chat-trigger-btn" id="toggleChatBtn">
-            <span class="btn-icon">💬</span>
-            <span class="btn-label">Спросить ИИ</span>
-        </button>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Задать вопрос...">
+            <button id="sendMessageBtn">➔</button>
+        </div>
     </div>
 
-    <!-- 4. СКРИПТЫ -->
     <script src="js/drive.js"></script>
     <script src="js/assistant.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/modal.js"></script> <!-- Подключаем модуль модального окна -->
 </body>
 </html>
