@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVBase — Добавление в базу</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <h1>⚡ EVBase</h1>
+            <span class="status-badge"><span class="status-dot"></span> <span class="status-text">Drive: Загрузка...</span></span>
+        </div>
+        <nav class="nav">
+            <a href="index.html">Каталог авто</a>
+            <a href="tasks.html">Задачи и ТО</a>
+            <a href="add.html" class="active">+ Добавить запись</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="section-title">
+            <h2>➕ Добавление в базу знаний EVBase</h2>
+            <p>Заполните форму ниже, чтобы сгенерировать новую запись для файла <code>cars.json</code> на Google Диске</p>
+        </section>
+
+        <div class="add-container">
+            <!-- Переключатель типа записи -->
+            <div class="form-toggle">
+                <button type="button" id="tabCarBtn" class="toggle-btn active">🚗 Новый автомобиль</button>
+                <button type="button" id="tabPartBtn" class="toggle-btn">🔧 Новая запчасть</button>
+            </div>
+
+            <!-- ФОРМА 1: Добавление Автомобиля -->
+            <form id="addCarForm" class="entry-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="carBrand">Марка автомобиля *</label>
+                        <input type="text" id="carBrand" placeholder="Например: Zeekr" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="carModel">Модель *</label>
+                        <input type="text" id="carModel" placeholder="Например: 001" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="carYear">Год выпуска</label>
+                        <input type="text" id="carYear" placeholder="2023-2025">
+                    </div>
+                    <div class="form-group">
+                        <label for="carBattery">Тип/Объем батареи</label>
+                        <input type="text" id="carBattery" placeholder="100 kWh CATL Qilin">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="carOs">Версия ПО / Прошивка</label>
+                    <input type="text" id="carOs" placeholder="OS 5.2.1">
+                </div>
+
+                <button type="submit" class="btn btn-submit">Сгенерировать JSON для авто</button>
+            </form>
+
+            <!-- ФОРМА 2: Добавление Запчасти к авто -->
+            <form id="addPartForm" class="entry-form hidden">
+                <div class="form-group">
+                    <label for="selectCar">Выберите автомобиль из базы *</label>
+                    <select id="selectCar" required>
+                        <option value="">Загрузка списка авто из Google Drive...</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="partCategory">Категория *</label>
+                        <select id="partCategory" required>
+                            <option value="Фильтры">Фильтры</option>
+                            <option value="Тормозная система">Тормозная система</option>
+                            <option value="Подвеска">Подвеска</option>
+                            <option value="Зарядка/Электрика">Зарядка/Электрика</option>
+                            <option value="Кузовные детали">Кузовные детали</option>
+                            <option value="Жидкости">Жидкости</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="partName">Наименование запчасти *</label>
+                        <input type="text" id="partName" placeholder="Фильтр салона угольный" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="partNumber">Артикул / Part Number *</label>
+                        <input type="text" id="partNumber" placeholder="2010045-00-A" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="partNote">Заметка / Примечание</label>
+                        <input type="text" id="partNote" placeholder="Замена каждые 10 000 км">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit">Сгенерировать JSON для запчасти</button>
+            </form>
+
+            <!-- Блок вывода сгенерированного JSON -->
+            <div id="jsonResultBlock" class="json-result-block hidden">
+                <div class="json-header">
+                    <span>Готово! Скопируйте фрагмент и вставьте его в ваш файл <code>cars.json</code> на Google Диске:</span>
+                    <button id="copyJsonBtn" class="btn btn-copy">📋 Скопировать</button>
+                </div>
+                <pre><code id="jsonOutput"></code></pre>
+            </div>
+        </div>
+    </main>
+
+    <!-- Виджет ИИ-Ассистента -->
+    <button id="toggleChatBtn" class="chat-toggle-btn">💬</button>
+    <div id="chatWindow" class="chat-window hidden">
+        <div class="chat-header">
+            <h3>ИИ-Ассистент EVBase</h3>
+            <button id="closeChat">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Спросить ассистента...">
+            <button id="sendMessageBtn">➔</button>
+        </div>
+    </div>
+
+    <script src="js/drive.js"></script>
+    <script src="js/assistant.js"></script>
+    <script src="js/add.js"></script>
+</body>
+</html>
