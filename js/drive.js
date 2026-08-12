@@ -2,7 +2,7 @@ const DRIVE_CONFIG = {
     // Вставьте ваш API Key или публичную ссылку/ID файлов Google Drive
     apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs', // Если используете публичный доступ без OAuth
     files: {
-        cars: 'ID_ФАЙЛА_CARS_JSON',
+        cars: '1sfip2hvFmZV_yW5gPRdnCrWGktD56vKk',
         tasks: 'ID_ФАЙЛА_TASKS_JSON'
     }
 };
