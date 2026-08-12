@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function initDataLoading() {
     const container = document.getElementById('catalogContent');
     if (container) {
-        container.innerHTML = '<div class="loading-spinner">Загрузка данных с Google Drive...</div>';
+        container.innerHTML = '<div class="loading-spinner">Загрузка данных...</div>';
     }
 
-    if (typeof fetchJsonFromDrive === 'function' && typeof DRIVE_CONFIG !== 'undefined') {
-        const data = await fetchJsonFromDrive(DRIVE_CONFIG.files.cars);
+    if (typeof fetchJsonFromDrive === 'function') {
+        const data = await fetchJsonFromDrive();
         
         if (data && Array.isArray(data) && data.length > 0) {
             ALL_CARS = data;
@@ -34,7 +34,7 @@ async function initDataLoading() {
         }
     }
     
-    showError('Не удалось загрузить каталог с Google Drive. Проверьте настройки доступа или ID файла.');
+    showError('Не удалось загрузить каталог. Проверьте правильность ссылки на GitHub Gist.');
 }
 
 function routeCatalogView() {
