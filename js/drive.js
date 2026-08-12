@@ -38,26 +38,28 @@ async function initDrive() {
 }
 
 /**
- * Универсальное получение JSON с Google Drive (для публичного файла по ID)
+ * Универсальное скачивание публичного JSON-файла с Google Drive с обходом CORS
  */
 async function fetchJsonFromDrive(fileId) {
     if (!driveInitialized) {
         await initDrive();
     }
 
+    // Используем CORS-прокси и прямой экспорт из Google Drive
+    const targetUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+
     try {
-        // Если используете прямой доступ к публичному файлу Google Drive
-        const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
-        const response = await fetch(url);
+        const response = await fetch(proxyUrl);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`Ошибка HTTP! Статус: ${response.status}`);
         }
 
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error(`Ошибка скачивания файла ${fileId} с Drive:`, error);
+        console.error(`Ошибка загрузки файла ${fileId} с Drive:`, error);
         return null;
     }
 }
