@@ -1,75 +1,68 @@
 const DRIVE_CONFIG = {
-    apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs',
+    // Вставьте ваш API Key или публичную ссылку/ID файлов Google Drive
+    apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs', // Если используете публичный доступ без OAuth
     files: {
-        cars: '1RsOlqDKLV5f9kBC-CHq_yQQXgmblwwQA',
-        tasks: 'ВАШ_ID_ФАЙЛА_TASKS' // Вставьте чистый ID файла tasks.json
+        cars: 'ID_ФАЙЛА_CARS_JSON',
+        tasks: 'ID_ФАЙЛА_TASKS_JSON'
     }
 };
 
-/**
- * Извлекает чистый ID файла из строки или ссылки Google Drive
- */
-function extractFileId(input) {
-    if (!input) return '';
-    // Если передана полная ссылка Google Drive, вырезаем ID с помощью регулярного выражения
-    const match = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    return match ? match[1] : input.trim();
-}
+let driveInitialized = false;
 
 /**
- * Загрузка JSON-файла с Google Drive
+ * Инициализация подключения к Google Drive
  */
-async function fetchJsonFromDrive(fileInput) {
-    const fileId = extractFileId(fileInput);
-
-    if (!DRIVE_CONFIG.apiKey) {
-        console.error('⚠️ Ошибка: Не указан API-ключ в DRIVE_CONFIG.apiKey');
-        updateDriveStatus(false);
-        return null;
-    }
-
-    if (!fileId || fileId.includes('ВАШ_')) {
-        console.error('⚠️ Ошибка: Не указан корректный ID файла.');
-        updateDriveStatus(false);
-        return null;
-    }
-
-    // Чистый URL без вложенных ссылок
-    const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${DRIVE_CONFIG.apiKey}`;
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            const errorJson = await response.json().catch(() => ({}));
-            console.error(`⚠️ Ошибка Google Drive API (${response.status}):`, errorJson);
-            updateDriveStatus(false);
-            return null;
-        }
-
-        const data = await response.json();
-        updateDriveStatus(true);
-        return data;
-    } catch (error) {
-        console.error('Ошибка при получении данных с Google Drive:', error.message);
-        updateDriveStatus(false);
-        return null;
-    }
-}
-
-/**
- * Обновление индикатора статуса подключения в шапке
- */
-function updateDriveStatus(isConnected) {
+async function initDrive() {
     const statusText = document.querySelector('.status-text');
     const statusDot = document.querySelector('.status-dot');
 
-    if (statusText && statusDot) {
-        if (isConnected) {
-            statusText.textContent = 'Drive: Подключен';
-            statusDot.style.background = '#10b981'; // Зеленый
-        } else {
-            statusText.textContent = 'Drive: Ошибка';
-            statusDot.style.background = '#ef4444'; // Красный
+    try {
+        if (statusText) statusText.textContent = 'Drive: Подключение...';
+
+        // Проверка наличия конфигурации
+        if (!DRIVE_CONFIG || !DRIVE_CONFIG.files) {
+            throw new Error('Отсутствует конфигурация DRIVE_CONFIG');
         }
+
+        driveInitialized = true;
+
+        if (statusText) statusText.textContent = 'Drive: Подключен';
+        if (statusDot) statusDot.style.background = '#22c55e'; // Зеленый индикатор
+        return true;
+    } catch (err) {
+        console.error('Ошибка Google Drive:', err);
+        if (statusText) statusText.textContent = 'Drive: Ошибка';
+        if (statusDot) statusDot.style.background = '#ef4444'; // Красный индикатор
+        return false;
     }
 }
+
+/**
+ * Универсальное получение JSON с Google Drive (для публичного файла по ID)
+ */
+async function fetchJsonFromDrive(fileId) {
+    if (!driveInitialized) {
+        await initDrive();
+    }
+
+    try {
+        // Если используете прямой доступ к публичному файлу Google Drive
+        const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Ошибка скачивания файла ${fileId} с Drive:`, error);
+        return null;
+    }
+}
+
+// Запускаем инициализацию сразу при загрузке скрипта
+document.addEventListener('DOMContentLoaded', () => {
+    initDrive();
+});
