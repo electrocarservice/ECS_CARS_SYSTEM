@@ -22,6 +22,7 @@
             <a href="index.html" class="nav-link active">Главная</a>
             <a href="cars.html" class="nav-link">Автомобили</a>
             <a href="tasks.html" class="nav-link">Задачи</a>
+            <a href="add.html">+ Добавить</a>
             <a href="about.html" class="nav-link">О проекте</a>
         </nav>
 
@@ -66,113 +67,7 @@
                 <a href="cars.html?brand=avatr" class="brand-card">Avatr</a>
             </div>
         </section>
-
-<!-- Кнопка открытия модального окна (разместите возле поиска) -->
-<section class="actions-section">
-    <button id="openModalBtn" class="btn btn-primary">+ Добавить запись</button>
-</section>
-
-<!-- Модальное окно -->
-<div id="addModal" class="modal hidden">
-    <div class="modal-overlay" id="modalOverlay"></div>
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Добавление в базу EVBase</h3>
-            <button id="closeModalBtn" class="close-btn">&times;</button>
-        </div>
-
-        <div class="modal-body">
-            <!-- Переключатель типа записи -->
-            <div class="form-toggle">
-                <button type="button" id="tabCarBtn" class="toggle-btn active">🚗 Новый автомобиль</button>
-                <button type="button" id="tabPartBtn" class="toggle-btn">🔧 Новая запчасть</button>
-            </div>
-
-            <!-- ФОРМА 1: Добавление Автомобиля -->
-            <form id="addCarForm" class="entry-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="carBrand">Марка *</label>
-                        <input type="text" id="carBrand" placeholder="Например: Zeekr" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="carModel">Модель *</label>
-                        <input type="text" id="carModel" placeholder="Например: 001" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="carYear">Год выпуска</label>
-                        <input type="text" id="carYear" placeholder="2023-2025">
-                    </div>
-                    <div class="form-group">
-                        <label for="carBattery">Тип/Объем батареи</label>
-                        <input type="text" id="carBattery" placeholder="100 kWh CATL Qilin">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="carOs">Версия ПО / Прошивка</label>
-                    <input type="text" id="carOs" placeholder="OS 5.2.1">
-                </div>
-
-                <button type="submit" class="btn btn-submit">Сгенерировать JSON для cars.json</button>
-            </form>
-
-            <!-- ФОРМА 2: Добавление Запчасти к авто -->
-            <form id="addPartForm" class="entry-form hidden">
-                <div class="form-group">
-                    <label for="selectCar">Выберите автомобиль *</label>
-                    <select id="selectCar" required>
-                        <option value="">-- Выберите из базы --</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="partCategory">Категория *</label>
-                        <select id="partCategory" required>
-                            <option value="Фильтры">Фильтры</option>
-                            <option value="Тормозная система">Тормозная система</option>
-                            <option value="Подвеска">Подвеска</option>
-                            <option value="Зарядка/Электрика">Зарядка/Электрика</option>
-                            <option value="Кузовные детали">Кузовные детали</option>
-                            <option value="Жидкости">Жидкости</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="partName">Наименование *</label>
-                        <input type="text" id="partName" placeholder="Фильтр салона угольный" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="partNumber">Артикул / Part Number *</label>
-                        <input type="text" id="partNumber" placeholder="2010045-00-A" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="partNote">Заметка / Аналог</label>
-                        <input type="text" id="partNote" placeholder="Замена каждые 10 000 км">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-submit">Сгенерировать JSON запчасти</button>
-            </form>
-
-            <!-- Блок вывода готового JSON -->
-            <div id="jsonResultBlock" class="json-result-block hidden">
-                <div class="json-header">
-                    <span>Скопируйте этот блок в ваш файл <code>cars.json</code>:</span>
-                    <button id="copyJsonBtn" class="btn btn-copy">📋 Копировать</button>
-                </div>
-                <pre><code id="jsonOutput"></code></pre>
-            </div>
-        </div>
-    </div>
-</div>
-        
+     
         <!-- Контейнер для динамической загрузки данных из Drive/JSON -->
         <section class="content-feed">
             <h2>Свежие материалы и гайды</h2>
