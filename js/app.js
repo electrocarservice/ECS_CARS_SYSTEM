@@ -4,13 +4,11 @@ let currentBrand = null;
 document.addEventListener('DOMContentLoaded', async () => {
     await initDataLoading();
 
-    // Логика для страницы main / index.html (поиск на главной)
     const indexSearchInput = document.getElementById('searchInput');
     if (indexSearchInput) {
         indexSearchInput.addEventListener('input', (e) => handleIndexSearch(e.target.value));
     }
 
-    // Логика для страницы cars.html (поиск в каталоге)
     const carsSearchInput = document.getElementById('carsSearchInput');
     if (carsSearchInput) {
         carsSearchInput.addEventListener('input', (e) => handleCatalogSearch(e.target.value));
@@ -36,32 +34,20 @@ async function initDataLoading() {
         }
     }
     
-    showError('Не удалось получить данные с Google Drive. Проверьте ID файла или подключение.');
-}
-    } else {
-        showError('Модуль js/drive.js не подключен.');
-    }
+    showError('Не удалось загрузить каталог с Google Drive. Проверьте настройки доступа или ID файла.');
 }
 
-/**
- * Маршрутизация на странице cars.html
- */
 function routeCatalogView() {
     const urlParams = new URLSearchParams(window.location.search);
     const carId = urlParams.get('id');
 
     if (carId) {
-        // Если перешли напрямую по ссылке на конкретный авто (например из поиска)
         renderCarDetails(carId);
     } else {
-        // По умолчанию показываем марки
         renderBrands();
     }
 }
 
-/**
- * Уровень 1: Отображение марок
- */
 function renderBrands() {
     currentBrand = null;
     const container = document.getElementById('catalogContent');
@@ -86,9 +72,6 @@ function renderBrands() {
     `;
 }
 
-/**
- * Уровень 2: Модельный ряд выбранной марки
- */
 function renderModels(brand) {
     currentBrand = brand;
     const container = document.getElementById('catalogContent');
@@ -111,9 +94,6 @@ function renderModels(brand) {
     `;
 }
 
-/**
- * Уровень 3: Карточка автомобиля
- */
 function renderCarDetails(carId) {
     const container = document.getElementById('catalogContent');
     if (!container) return;
@@ -125,69 +105,160 @@ function renderCarDetails(carId) {
             <div class="breadcrumb">
                 <button class="btn-back" onclick="renderBrands()">⬅ В каталог</button>
             </div>
-            <p class="empty-news">Автомобиль с указанным ID не найден в базе.</p>
+            <p class="empty-news">Автомобиль не найден в базе.</p>
         `;
         return;
     }
 
-    // Обновляем адресную строку без перезагрузки, чтобы ссылкой можно было поделиться
     window.history.replaceState(null, '', `cars.html?id=${car.id}`);
+
+    const mainImg = car.image || 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80';
+    const specs = car.specs || {};
+    const software = car.software || {};
 
     container.innerHTML = `
         <div class="breadcrumb">
             <button class="btn-back" onclick="renderModels('${car.brand}')">⬅ Назад к моделям ${car.brand}</button>
         </div>
         
-        <div class="car-details-card">
-            <h2 class="car-title">${car.brand} ${car.model}</h2>
-            
-            <div class="car-specs-grid">
-                <div class="spec-item"><strong>Год выпуска</strong> ${car.year || 'н/д'}</div>
-                <div class="spec-item"><strong>Батарея</strong> ${car.batteryType || 'н/д'}</div>
-                <div class="spec-item"><strong>Версия ПО</strong> ${car.osVersion || 'н/д'}</div>
+        <div class="car-header-layout">
+            <img src="${mainImg}" alt="${car.brand} ${car.model}" class="car-main-image" />
+            <div class="car-header-info">
+                <h2 class="car-title">${car.brand} ${car.model}</h2>
+                <p style="color: var(--text-muted); margin-bottom: 10px;">Годы выпуска: <strong>${car.year || 'н/д'}</strong></p>
+                <div class="car-specs-grid" style="margin:0; padding:10px;">
+                    <div class="spec-item"><strong>Привод</strong> ${specs.drive || 'н/д'}</div>
+                    <div class="spec-item"><strong>Мощность</strong> ${specs.power || 'н/д'}</div>
+                    <div class="spec-item"><strong>Батарея</strong> ${specs.battery || 'н/д'}</div>
+                    <div class="spec-item"><strong>Запас хода</strong> ${specs.range || 'н/д'}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('tab-specs', this)">📋 ТТХ и Описание</button>
+            <button class="tab-btn" onclick="switchTab('tab-software', this)">💻 ПО и Прошивка</button>
+            <button class="tab-btn" onclick="switchTab('tab-manuals', this)">📄 Руководства и файлы</button>
+            <button class="tab-btn" onclick="switchTab('tab-parts', this)">🔧 Запчасти и ТО</button>
+            <button class="tab-btn" onclick="switchTab('tab-issues', this)">⚠️ Известные проблемы</button>
+        </div>
+
+        <div class="tabs-content">
+            <div id="tab-specs" class="tab-pane active">
+                <div class="car-details-card">
+                    <h3 style="color:#1e3a8a; margin-bottom:15px;">Технические характеристики</h3>
+                    <div class="car-specs-grid">
+                        <div class="spec-item"><strong>Порты зарядки</strong> ${specs.chargePorts || 'н/д'}</div>
+                        <div class="spec-item"><strong>Подвеска</strong> ${specs.suspension || 'н/д'}</div>
+                        <div class="spec-item"><strong>Тип аккумулятора</strong> ${specs.battery || 'н/д'}</div>
+                        <div class="spec-item"><strong>Привод</strong> ${specs.drive || 'н/д'}</div>
+                    </div>
+                </div>
             </div>
 
-            ${car.softwareIssues && car.softwareIssues.length > 0 ? `
-                <div style="margin-top:20px;">
-                    <h3 style="color:#1e3a8a;">💻 ПО и Сервисные особенности</h3>
-                    <ul style="margin-top:10px; padding-left:20px;">
-                        ${car.softwareIssues.map(issue => `<li><strong>${issue.title}:</strong> ${issue.solution}</li>`).join('')}
+            <div id="tab-software" class="tab-pane">
+                <div class="car-details-card">
+                    <h3 style="color:#1e3a8a; margin-bottom:15px;">Информация о мультимедиа и ПО</h3>
+                    <ul style="line-height: 2; padding-left: 20px;">
+                        <li><strong>Текущая версия ОС:</strong> ${software.currentOs || 'н/д'}</li>
+                        <li><strong>Русификация:</strong> ${software.ruLanguage || 'н/д'}</li>
+                        <li><strong>Мастер-аккаунт:</strong> ${software.masterAccount || 'н/д'}</li>
+                        <li><strong>OTA Обновления:</strong> ${software.otaUpdates || 'н/д'}</li>
                     </ul>
                 </div>
-            ` : ''}
+            </div>
 
-            ${car.parts && car.parts.length > 0 ? `
-                <div style="margin-top:25px;">
-                    <h3 style="color:#1e3a8a;">🔧 Расходники и Запчасти</h3>
-                    <table class="parts-table">
-                        <thead>
-                            <tr>
-                                <th>Категория</th>
-                                <th>Наименование</th>
-                                <th>Артикул</th>
-                                <th>Заметка</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${car.parts.map(part => `
-                                <tr>
-                                    <td><span class="badge">${part.category}</span></td>
-                                    <td><strong>${part.name}</strong></td>
-                                    <td><code class="part-number">${part.partNumber}</code></td>
-                                    <td>${part.note || '-'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+            <div id="tab-manuals" class="tab-pane">
+                <div class="car-details-card">
+                    <h3 style="color:#1e3a8a; margin-bottom:15px;">Документация и мануалы</h3>
+                    ${car.manuals && car.manuals.length > 0 ? car.manuals.map(doc => {
+                        const viewUrl = `https://drive.google.com/file/d/${doc.fileId}/view`;
+                        const downloadUrl = `https://drive.google.com/uc?export=download&id=${doc.fileId}`;
+                        return `
+                            <div class="manual-card">
+                                <div class="manual-info">
+                                    <div class="manual-icon">📑</div>
+                                    <div>
+                                        <div class="manual-title">${doc.title}</div>
+                                        <div class="manual-meta">${doc.type || 'PDF'} • ${doc.size || 'Файл'} • Добавлено: ${doc.date || '-'}</div>
+                                    </div>
+                                </div>
+                                <div class="manual-actions">
+                                    <a href="${viewUrl}" target="_blank" class="btn-manual btn-manual-outline">👁 Просмотр</a>
+                                    <a href="${downloadUrl}" class="btn-manual btn-manual-primary">⬇ Скачать</a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('') : '<p>Руководства и инструкции пока не загружены.</p>'}
                 </div>
-            ` : ''}
+            </div>
+
+            <div id="tab-parts" class="tab-pane">
+                <div class="car-details-card">
+                    <h3 style="color:#1e3a8a; margin-bottom:15px;">Расходники и каталожные номера</h3>
+                    ${car.parts && car.parts.length > 0 ? `
+                        <table class="parts-table">
+                            <thead>
+                                <tr>
+                                    <th>Категория</th>
+                                    <th>Наименование</th>
+                                    <th>Артикул</th>
+                                    <th>Заметка</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${car.parts.map(part => `
+                                    <tr>
+                                        <td><span class="badge">${part.category}</span></td>
+                                        <td><strong>${part.name}</strong></td>
+                                        <td>
+                                            <code class="part-number">${part.partNumber}</code>
+                                            <button class="btn-copy-part" onclick="copyToClipboard('${part.partNumber}', this)">📋</button>
+                                        </td>
+                                        <td>${part.note || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : '<p>Запчасти пока не добавлены.</p>'}
+                </div>
+            </div>
+
+            <div id="tab-issues" class="tab-pane">
+                <div class="car-details-card">
+                    <h3 style="color:#1e3a8a; margin-bottom:15px;">Частые неисправности и решения</h3>
+                    ${car.issues && car.issues.length > 0 ? car.issues.map(issue => `
+                        <div class="issue-card">
+                            <div class="issue-title">⚠️ ${issue.title}</div>
+                            <p><strong>Симптом:</strong> ${issue.symptom}</p>
+                            <p style="margin-top:5px; color:#166534;"><strong>Решение:</strong> ${issue.solution}</p>
+                        </div>
+                    `).join('') : '<p>Известных типовых проблем не зарегистрировано.</p>'}
+                </div>
+            </div>
         </div>
     `;
 }
 
-/**
- * Глобальный поиск на главной (index.html)
- */
+function switchTab(tabId, btnElement) {
+    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    const activePane = document.getElementById(tabId);
+    if (activePane) activePane.classList.add('active');
+    if (btnElement) btnElement.classList.add('active');
+}
+
+function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Скопировано';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 1500);
+    });
+}
+
 function handleIndexSearch(query) {
     const q = query.toLowerCase().trim();
     const searchBlock = document.getElementById('searchResultsBlock');
@@ -228,9 +299,6 @@ function handleIndexSearch(query) {
     `;
 }
 
-/**
- * Поиск непосредственно на странице каталога (cars.html)
- */
 function handleCatalogSearch(query) {
     const q = query.toLowerCase().trim();
     if (!q) {
