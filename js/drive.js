@@ -1,7 +1,7 @@
 // Конфигурация источников данных
 const DATA_CONFIG = {
     // Вставьте вашу прямую ссылка (Raw) с GitHub Gist
-    carsUrl: 'https://gist.githubusercontent.com/username/1234567890abcdef/raw/cars.json'
+    carsUrl: 'https://gist.githubusercontent.com/kozpavvichecs-master/3490cd2e1e556dbe9b0dbd461332c9cc/raw/cbdd272327553f4fd046ea09ca1500066b1b5c1d/cars.json'
 };
 
 let dataStatusInitialized = false;
