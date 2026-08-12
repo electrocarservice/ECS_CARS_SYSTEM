@@ -311,3 +311,14 @@ body {
     border-radius: 6px;
     cursor: pointer;
 }
+
+/* Дополнительные стили для навигации */
+.nav .nav-home {
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+}
+
+.nav .nav-home:hover, .nav .nav-home.active {
+    background: var(--primary-light);
+    border-color: #bfdbfe;
+}
