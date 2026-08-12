@@ -5,7 +5,7 @@ const NEWS_FEEDS = [
     'https://news.drom.ru/rss/ev/'
 ];
 
-// Дефолтная заглушка, если в источнике нет картинки
+// Дефолтная заглушка (высококачественное фото электромобиля)
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -59,7 +59,7 @@ async function fetchLatestEVNews(isManualRefresh = false) {
         // Сортировка по дате (от новых к старым)
         allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-        // Отбираем ровно 5 свежих новостей
+        // Отбираем 5 свежих новостей
         const top5Articles = allArticles.slice(0, 5);
 
         renderNewsCards(top5Articles);
@@ -76,31 +76,40 @@ async function fetchLatestEVNews(isManualRefresh = false) {
 }
 
 /**
- * Извлечение URL изображения из объекта новости или её HTML-текста
+ * Надежный поиск ссылки на изображение в объекте новости
  */
-function extractImageUrl(item) {
+function findRawImageUrl(item) {
     // 1. Поле thumbnail из RSS2JSON
-    if (item.thumbnail && item.thumbnail.startsWith('http')) {
+    if (item.thumbnail && typeof item.thumbnail === 'string' && item.thumbnail.startsWith('http')) {
         return item.thumbnail;
     }
 
-    // 2. Медиа-вложения (enclosure / media)
-    if (item.enclosure && item.enclosure.link) {
+    // 2. Вложения enclosure
+    if (item.enclosure && item.enclosure.link && item.enclosure.link.startsWith('http')) {
         return item.enclosure.link;
     }
 
-    // 3. Поиск первого <img> в HTML-описании или контенте
-    const htmlContent = item.description || item.content || '';
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    const imgTag = tempDiv.querySelector('img');
+    const htmlContent = (item.description || '') + (item.content || '');
 
-    if (imgTag && imgTag.src && imgTag.src.startsWith('http')) {
-        return imgTag.src;
+    // 3. Регулярное выражение для поиска src у тегов <img>
+    const imgRegex = /<img[^>]+src=["'](https?:\/\/[^"'\s>]+)["']/i;
+    const match = htmlContent.match(imgRegex);
+    if (match && match[1]) {
+        return match[1];
     }
 
-    // Заглушка, если изображение не найдено
-    return DEFAULT_IMAGE;
+    return null;
+}
+
+/**
+ * Проксирование ссылки на картинку для обхода CORS/Hotlink блокировок
+ */
+function getProxiedImageUrl(item) {
+    const rawUrl = findRawImageUrl(item);
+    if (!rawUrl) return DEFAULT_IMAGE;
+
+    // Используем бесплатный прокси-сервис картинкок wsrv.nl для оптимизации и снятия блокировок CORS
+    return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=400&h=260&fit=cover&output=webp`;
 }
 
 /**
@@ -111,24 +120,23 @@ function renderNewsCards(articles) {
     if (!container) return;
 
     container.innerHTML = articles.map(item => {
-        // Очистка HTML-тегов для текста
+        // Очистка текста от HTML
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = item.description || item.content || '';
         let cleanText = tempDiv.textContent || tempDiv.innerText || '';
 
-        // Дата публикации
+        // Дата
         const pubDate = new Date(item.pubDate).toLocaleDateString('ru-RU', {
             day: 'numeric',
             month: 'long',
-            year: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         });
 
-        // Поиск изображения
-        const imageUrl = extractImageUrl(item);
+        // Проксированный URL с защитой от сбоев
+        const imageUrl = getProxiedImageUrl(item);
 
-        // Ограничение длины текста (не более 500 символов суммарно с заголовком и метаинформацией)
+        // Лимит текста
         const maxTextLength = 320;
         if (cleanText.length > maxTextLength) {
             cleanText = cleanText.substring(0, maxTextLength).trim() + '...';
@@ -137,7 +145,13 @@ function renderNewsCards(articles) {
         return `
             <article class="news-card media-card">
                 <div class="news-image-wrapper">
-                    <img src="${imageUrl}" alt="${item.title}" class="news-image" onerror="this.src='${DEFAULT_IMAGE}'">
+                    <img 
+                        src="${imageUrl}" 
+                        alt="${item.title.replace(/"/g, '&quot;')}" 
+                        class="news-image" 
+                        loading="lazy"
+                        onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';"
+                    />
                 </div>
                 <div class="news-content-wrapper">
                     <div class="news-card-header">
