@@ -40,26 +40,12 @@ async function initDrive() {
 /**
  * Универсальное скачивание публичного JSON-файла с Google Drive с обходом CORS
  */
-async function fetchJsonFromDrive(fileId) {
-    if (!driveInitialized) {
-        await initDrive();
-    }
-
-    // Используем CORS-прокси и прямой экспорт из Google Drive
-    const targetUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-
+async function fetchJsonFromDrive() {
     try {
-        const response = await fetch(proxyUrl);
-
-        if (!response.ok) {
-            throw new Error(`Ошибка HTTP! Статус: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Ошибка загрузки файла ${fileId} с Drive:`, error);
+        const response = await fetch('https://gist.githubusercontent.com/kozpavvichecs-master/3490cd2e1e556dbe9b0dbd461332c9cc/raw/cbdd272327553f4fd046ea09ca1500066b1b5c1d/cars.json');
+        return await response.json();
+    } catch (e) {
+        console.error(e);
         return null;
     }
 }
