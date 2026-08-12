@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVBase — Каталог авто</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <h1>⚡ EVBase</h1>
+            <span class="status-badge">
+                <span class="status-dot"></span> 
+                <span class="status-text">Drive: Загрузка...</span>
+            </span>
+        </div>
+        <nav class="nav">
+            <a href="index.html" class="nav-home">🏠 Домой</a>
+            <a href="cars.html" class="active">Каталог авто</a>
+            <a href="tasks.html">Задачи и ТО</a>
+            <a href="add.html">Добавить</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Поиск внутри каталога -->
+        <section class="search-section">
+            <input type="text" id="carsSearchInput" class="search-input" placeholder="🔍 Поиск марки или модели в каталоге..." />
+        </section>
+
+        <!-- Основной контейнер каталога (Марки -> Модели -> Карточка авто) -->
+        <section id="catalogContent">
+            <div class="loading-spinner">Загрузка каталога с Google Drive...</div>
+        </section>
+    </main>
+
+    <!-- ИИ-Ассистент -->
+    <button id="toggleChatBtn" class="chat-toggle-btn">💬</button>
+    <div id="chatWindow" class="chat-window hidden">
+        <div class="chat-header">
+            <h3>ИИ-Ассистент EVBase</h3>
+            <button id="closeChat" style="background:none; border:none; color:#fff; cursor:pointer; font-size:1.2rem; margin-left:auto;">&times;</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Задать вопрос...">
+            <button id="sendMessageBtn">➔</button>
+        </div>
+    </div>
+
+    <script src="js/drive.js"></script>
+    <script src="js/assistant.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
