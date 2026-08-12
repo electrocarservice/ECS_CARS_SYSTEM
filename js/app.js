@@ -18,18 +18,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function initDataLoading() {
-    if (typeof fetchJsonFromDrive === 'function') {
+    const container = document.getElementById('catalogContent');
+    if (container) {
+        container.innerHTML = '<div class="loading-spinner">Загрузка данных с Google Drive...</div>';
+    }
+
+    if (typeof fetchJsonFromDrive === 'function' && typeof DRIVE_CONFIG !== 'undefined') {
         const data = await fetchJsonFromDrive(DRIVE_CONFIG.files.cars);
-        if (data && Array.isArray(data)) {
+        
+        if (data && Array.isArray(data) && data.length > 0) {
             ALL_CARS = data;
             
-            // Проверяем, на какой мы странице и есть ли ID авто в URL
             if (document.getElementById('catalogContent')) {
                 routeCatalogView();
             }
-        } else {
-            showError('Не удалось загрузить данные из cars.json.');
+            return;
         }
+    }
+    
+    showError('Не удалось получить данные с Google Drive. Проверьте ID файла или подключение.');
+}
     } else {
         showError('Модуль js/drive.js не подключен.');
     }
