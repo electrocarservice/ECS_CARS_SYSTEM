@@ -1,56 +1,63 @@
-const DRIVE_CONFIG = {
-    // Вставьте ваш API Key или публичную ссылку/ID файлов Google Drive
-    apiKey: 'AIzaSyAZ25D7JHjvYnj9bjiDUjG95kC2PUB7KYs', // Если используете публичный доступ без OAuth
-    files: {
-        cars: '1sfip2hvFmZV_yW5gPRdnCrWGktD56vKk',
-        tasks: 'ID_ФАЙЛА_TASKS_JSON'
-    }
+// Конфигурация источников данных
+const DATA_CONFIG = {
+    // Вставьте вашу прямую ссылка (Raw) с GitHub Gist
+    carsUrl: 'https://gist.githubusercontent.com/username/1234567890abcdef/raw/cars.json'
 };
 
-let driveInitialized = false;
+let dataStatusInitialized = false;
 
 /**
- * Инициализация подключения к Google Drive
+ * Инициализация статуса подключения
  */
 async function initDrive() {
     const statusText = document.querySelector('.status-text');
     const statusDot = document.querySelector('.status-dot');
 
     try {
-        if (statusText) statusText.textContent = 'Drive: Подключение...';
+        if (statusText) statusText.textContent = 'База: Подключение...';
 
-        // Проверка наличия конфигурации
-        if (!DRIVE_CONFIG || !DRIVE_CONFIG.files) {
-            throw new Error('Отсутствует конфигурация DRIVE_CONFIG');
+        if (!DATA_CONFIG || !DATA_CONFIG.carsUrl) {
+            throw new Error('Не указан URL файла в DATA_CONFIG');
         }
 
-        driveInitialized = true;
+        dataStatusInitialized = true;
 
-        if (statusText) statusText.textContent = 'Drive: Подключен';
-        if (statusDot) statusDot.style.background = '#22c55e'; // Зеленый индикатор
+        if (statusText) statusText.textContent = 'База: Подключена';
+        if (statusDot) statusDot.style.background = '#22c55e';
         return true;
     } catch (err) {
-        console.error('Ошибка Google Drive:', err);
-        if (statusText) statusText.textContent = 'Drive: Ошибка';
-        if (statusDot) statusDot.style.background = '#ef4444'; // Красный индикатор
+        console.error('Ошибка инициализации базы данных:', err);
+        if (statusText) statusText.textContent = 'База: Ошибка';
+        if (statusDot) statusDot.style.background = '#ef4444';
         return false;
     }
 }
 
 /**
- * Универсальное скачивание публичного JSON-файла с Google Drive с обходом CORS
+ * Загрузка JSON напрямую с GitHub Gist / Raw
  */
 async function fetchJsonFromDrive() {
+    if (!dataStatusInitialized) {
+        await initDrive();
+    }
+
     try {
-        const response = await fetch(https://gist.githubusercontent.com/kozpavvichecs-master/3490cd2e1e556dbe9b0dbd461332c9cc/raw/cbdd272327553f4fd046ea09ca1500066b1b5c1d/cars.json);
-        return await response.json();
-    } catch (e) {
-        console.error(e);
+        // Добавляем timestamp, чтобы браузер не кэшировал старую версию при обновлениях
+        const cacheBuster = `?t=${new Date().getTime()}`;
+        const response = await fetch(DATA_CONFIG.carsUrl + cacheBuster);
+
+        if (!response.ok) {
+            throw new Error(`Ошибка HTTP! Статус: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Ошибка загрузки JSON с GitHub:', error);
         return null;
     }
 }
 
-// Запускаем инициализацию сразу при загрузке скрипта
 document.addEventListener('DOMContentLoaded', () => {
     initDrive();
 });
